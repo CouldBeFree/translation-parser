@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 clap={ version="3.1.6", features=["derive"] }
+umya-spreadsheet = "1.0.1"
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+serde={ version = "1.0.136", features = ["derive"] }

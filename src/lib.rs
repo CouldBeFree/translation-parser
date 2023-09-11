@@ -1,11 +1,14 @@
-use std::{error::Error, vec};
+mod file_parser;
+
+use std::error::Error;
 use clap::{App, Arg};
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
 #[derive(Debug)]
 pub struct Config {
-    path: String
+    path: String,
+    sheet_name: Option<String>
 }
 
 pub fn get_args() -> MyResult<Config> {
@@ -14,28 +17,35 @@ pub fn get_args() -> MyResult<Config> {
         .author("Oleksandr Zoria <zoriaalexandr@gmail.com>")
         .about("Translaion xml parser")
         .arg(
-            Arg::with_name("test")
-                .value_name("TEST")
-                .short('t')
+            Arg::with_name("parse")
+                .value_name("PARSE")
+                .short('p')
                 .takes_value(true)
-                .help("Test")
+                .help("Parse file, accepts at least one argument, first path to the xlsx file, second sheet name")
                 .allow_invalid_utf8(true)
                 .multiple(true)
         )
         .get_matches();
 
-    let test = matches.values_of_lossy("test").unwrap();
+    let file_values = matches.values_of_lossy("parse").unwrap();
 
-    for i in test {
-        println!("F, {}", i);
-    }
+    // for i in test {
+    //     println!("F, {}", i);
+    // }
     // let value = test.get(0).unwrap();
     // println!("Value, {}", value);
     // Ok(Config { path: value.to_owned() })
-    Ok(Config { path: "Mlope".to_string() })
+    let path = file_values.get(0).unwrap();
+    // let sheet_name = file_values.get(1);
+    let sheet_name = if let Some(name) = file_values.get(1) {
+        Some(name.to_owned())
+    } else {
+        None
+    };
+    Ok(Config { path: path.to_owned(), sheet_name })
 }
 
 pub fn run(config: Config) -> MyResult<()> {
-    println!("Path, {}", config.path);
+    file_parser::parser::parse(config.path, config.sheet_name);
     Ok(())
 }
