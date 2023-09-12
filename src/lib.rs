@@ -28,15 +28,7 @@ pub fn get_args() -> MyResult<Config> {
         .get_matches();
 
     let file_values = matches.values_of_lossy("parse").unwrap();
-
-    // for i in test {
-    //     println!("F, {}", i);
-    // }
-    // let value = test.get(0).unwrap();
-    // println!("Value, {}", value);
-    // Ok(Config { path: value.to_owned() })
     let path = file_values.get(0).unwrap();
-    // let sheet_name = file_values.get(1);
     let sheet_name = if let Some(name) = file_values.get(1) {
         Some(name.to_owned())
     } else {
