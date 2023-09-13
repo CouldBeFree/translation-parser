@@ -1,5 +1,5 @@
 extern crate umya_spreadsheet;
-use umya_spreadsheet::{Spreadsheet, Cell};
+use umya_spreadsheet::Spreadsheet;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fs;
@@ -121,7 +121,8 @@ fn check_if_provided_sheet_exists(file: &Spreadsheet, sheet_name: &str) -> Resul
 fn get_sheet_name(name: Option<String>, file: &Spreadsheet) -> String {
     let sheet_collection = file.get_sheet_collection();
     let worksheet = match name {
-        Some(name) => {
+        Some(mut name) => {
+            name = name.replace("_", " ");
             check_if_provided_sheet_exists(&file, &name).expect("Wrong sheet name provided");
             name
         },
