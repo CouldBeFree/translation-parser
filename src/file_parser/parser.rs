@@ -22,7 +22,7 @@ impl LanguagesList {
             FileType::Ar => &self.ar,
             FileType::En => &self.en
         };
-        let json = serde_json::to_string(&value).map_err(|err| {
+        let json = serde_json::to_string_pretty(&value).map_err(|err| {
             std::io::Error::new(std::io::ErrorKind::Other, err)
         })?;
         
@@ -38,7 +38,7 @@ impl LanguagesList {
                 fs::File::create(en_path_str)?
             }
         };
-        println!("Translations was successfully created");
+        println!("Translation was successfully created");
         file.write_all(json.as_bytes())?;
         Ok(())
     }
@@ -122,8 +122,7 @@ fn check_if_provided_sheet_exists(file: &Spreadsheet, sheet_name: &str) -> Resul
 fn get_sheet_name(name: Option<String>, file: &Spreadsheet) -> String {
     let sheet_collection = file.get_sheet_collection();
     let worksheet = match name {
-        Some(mut name) => {
-            name = name.replace("_", " ");
+        Some(name) => {
             check_if_provided_sheet_exists(&file, &name).expect("Wrong sheet name provided");
             name
         },

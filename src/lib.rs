@@ -1,4 +1,5 @@
 mod file_parser;
+mod file_udate;
 
 use std::error::Error;
 use clap::{App, Arg};
@@ -76,8 +77,11 @@ pub fn run(config: Config) -> MyResult<()> {
             file_parser::parser::parse(parser_config.path.to_owned(), parser_config.sheet_name.to_owned());
         }
         Config::UpdateConfig(update_config) => {
-            println!("Update config: {:?}", update_config);
-            // Access fields of update_config if needed.
+            file_udate::update::update(
+                update_config.file_path.to_owned(), 
+                update_config.key.to_owned(),
+                update_config.translation.to_owned()
+            );
         }
     }
     Ok(())
