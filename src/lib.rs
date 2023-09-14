@@ -6,9 +6,22 @@ use clap::{App, Arg};
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
 #[derive(Debug)]
-pub struct Config {
+pub struct ParserConfig {
     path: String,
     sheet_name: Option<String>
+}
+
+#[derive(Debug)]
+pub struct UpdateConfig{
+    file_path: String,
+    key: String,
+    translation: String
+}
+
+#[derive(Debug)]
+pub enum Config {
+    ParseConfig(ParserConfig),
+    UpdateConfig(UpdateConfig)
 }
 
 pub fn get_args() -> MyResult<Config> {
@@ -25,19 +38,47 @@ pub fn get_args() -> MyResult<Config> {
                 .allow_invalid_utf8(true)
                 .multiple(true)
         )
+        .arg(
+            Arg::with_name("update")
+                .value_name("UPDATE")
+                .short('u')
+                .takes_value(true)
+                .help("Updates translation by key")
+                .allow_invalid_utf8(true)
+                .multiple(true)
+        )
         .get_matches();
 
-    let file_values = matches.values_of_lossy("parse").unwrap();
-    let path = file_values.get(0).unwrap();
-    let sheet_name = if let Some(name) = file_values.get(1) {
-        Some(name.to_owned())
+    let parse_val = matches.is_present("parse");
+    if parse_val {
+        let file_values = matches.values_of_lossy("parse").unwrap();
+        let path = file_values.get(0).unwrap();
+        let sheet_name = if let Some(name) = file_values.get(1) {
+            Some(name.to_owned())
+        } else {
+            None
+        };
+        let config = Config::ParseConfig(ParserConfig { path: path.to_owned(), sheet_name });
+        Ok(config)
     } else {
-        None
-    };
-    Ok(Config { path: path.to_owned(), sheet_name })
+        let update_value = matches.values_of_lossy("update").unwrap();
+        let file_path = update_value.get(0).expect("File path should be provided");
+        let key = update_value.get(1).expect("Key should be provided");
+        let translation = update_value.get(2).expect("Translation should be provided");
+        let config = Config::UpdateConfig(UpdateConfig{ file_path: file_path.to_owned(), key: key.to_owned(), translation: translation.to_owned() });
+        Ok(config)
+    }
 }
 
 pub fn run(config: Config) -> MyResult<()> {
-    file_parser::parser::parse(config.path, config.sheet_name);
+    match &config {
+        Config::ParseConfig(parser_config) => {
+            file_parser::parser::parse(parser_config.path.to_owned(), parser_config.sheet_name.to_owned());
+        }
+        Config::UpdateConfig(update_config) => {
+            println!("Update config: {:?}", update_config);
+            // Access fields of update_config if needed.
+        }
+    }
     Ok(())
 }

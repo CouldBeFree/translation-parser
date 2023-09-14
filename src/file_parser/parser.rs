@@ -38,6 +38,7 @@ impl LanguagesList {
                 fs::File::create(en_path_str)?
             }
         };
+        println!("Translations was successfully created");
         file.write_all(json.as_bytes())?;
         Ok(())
     }
